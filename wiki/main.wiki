@@ -4,7 +4,7 @@
 
 Add your content here.
 
-[link]
+[Examples]
 Wikisyntax page
 = Details =
 
