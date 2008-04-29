@@ -1,0 +1,225 @@
+CA Builder Version X.X
+
+Installation
+------------------------------
+1.  Download the file cabuilder.tgz and copy it into a new directory
+
+2.  Uncompress and unzip it with 
+
+    %tar -zxvf cabuilder.tar.gz
+
+Once this is done you should have a directory in the working directory called 
+"cabuilder". This will contain the following file structure.
+
+./ANG_FILE_STORAGE/  --> storage bin for texture files
+
+./DOCS/              --> PDF's on basic Paraview operations
+
+./OUTPUT_FILES/      --> all resultant files from running msbuilder
+
+./ORIG_SRC/          --> contains all the original source code
+                         in the event you accidentally delete a file.
+./
+annealfinal.c         odfextract_final.cxx    RodToE.c
+bimodal.pl            makePeriodic.c          myCA.f
+mdfextract_final.cxx  stat3d.f90              RodToE_wts.c
+README                AUTHORS                 COPYING
+ChangeLog             symop.txt               mat.symm.cubic
+NEWS                  generate-3d.sh          ellipticalFoam.c
+MC_mdf_check.f        MCconvert2paraview.f    mt19937-64.c
+mt64.h                rod2eul.f               bell_curve.pl
+recursiveSampler.pl   wts2ang.f90
+
+
+Compiling
+-------------------------------------
+In order to build the MS package, your system must
+contain a few basic compilers and math libraries.
+
+1. GNU Compiler Collection (Free)
+2. Fortran 90/95 compiler  (g95** or gfortran are FREE)
+3. LAPACK Libraries (Free)
+4. PERL  (built-in)
+
+**We have included the G95 compiler in the directory ORIG_SRC/ for
+  your convenience.
+
+
+If any of these are missing, the package will not build correctly.
+
+A. First, you must edit the Makefile macros and define the correct compilers
+   Defaults:
+           FC = g95
+           CC = gcc
+           CXX = g++
+
+B. type 'make clean' to remove any existing binaries and object files.
+
+C. type 'make' to build the executables
+
+KNOWN ISSUES
+If the libraries, g2c and lapack, are not in standard locations
+(i.e. /usr/lib/), then you will need to explicitly define their locations 
+with the FLIBS macro in the Makefile
+
+Ex: 
+To find the location of libg2c.so use a syntax such as
+$ find /usr -name "libg2c*" -print
+/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/libg2c.a
+/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/libg2c.so
+/usr/lib/libg2c.so.0.0.0
+/usr/lib/libg2c.so.0
+
+Then in the Makefile, add an -L/DIR/ compiler flag
+FLIBS = -llapack -lg2c -L/usr/lib/gcc-lib/i386-redhat-linux
+
+Runtime
+------------------------------
+
+In order to generate a specific geometry, it is important for 
+the user to know some basic parameters, which include but are not
+limited to:
+
+Grain Morphology (i.e. Equiaxed, Columnar)
+Grain Size Distribution
+Grain ODF and MDF (determined from ANG file or grain files type #1)
+Number of Grains
+Micron to Pixel Ratio (length scale ratios)
+Box Dimensions
+
+1. A user may place any number of ANG or Grain Files type #1 in the 
+ANG_FILE_STORAGE directory.  This serves as a bin from which the 
+experimental ODF and MDF will be generated.  Since the texture is averaged
+over the total number of ANG files, the programs have been modified to 
+batch process all the files. It is important for the ANG or GF#1 files to be
+CORRECTLY rotated prior to running this software package; hence, the batch mode
+expects the rotation matrix to be the identity matrix.
+How is this corrected? Simply rotate results in TSL until the TSL reference axes
+and the true specimen axes are in alignment (i.e. RD of microscope matches
+the RD of the specimen, TD of the microscope matches the TD of the speciment, etc.)
+
+(ANG and Grain File Type 1 are data files obtained from Orientation
+ Imaging Microscopy, specifically the TSL OIM Analysis software).
+
+2. What box size are you interested in constructing? 
+   It has been tested up to a 400 x 400 x 400 system.
+
+   How many grains are desired?
+   Based on this input, the average initial grain size can be determined.
+   It will ask you if the values are acceptable before proceeding.
+   The ratio micron/pixel defines the unit dimensions.
+   
+   a)  BIMODAL.PL - this perl script is responsible for defining the 
+   shape aspect ratios. If you want a pancake or elongated grains, this
+   is the file of choice
+
+<example>
+
+For equiaxed grains, 
+
+sub smallAxes {
+  return(0.030+rand()*0.050,0.030+rand()*0.050,0.030+rand()*0.050);
+}
+
+sub bigAxes {
+  return(0.03+rand()*0.05,0.03+rand()*0.05,0.030+rand()*0.05);
+}
+
+In the event, you want elongated grains, change the above lines to 
+
+sub smallAxes {
+  return(0.030+rand()*0.050,0.030+rand()*0.050,0.30+rand()*0.050);
+}
+
+sub bigAxes {
+  return(0.03+rand()*0.05,0.03+rand()*0.05,0.30+rand()*0.05);
+}
+
+to generate an equiaxed structure, having radius 3% of the boxsize, instead of
+the cigar shaped grains which will have one of the axes 10 times the other two.
+
+   b)  Bell_Curve.pl -- similar to bimodal.pl except it more closely resembles
+                 the log-normal grain size distribution observed in experiment.
+                 The spread can be modified by editing the file.
+
+
+3. type './generate-3d.sh' to execute the script.
+   i.  Checks to make sure all executables and scripts are in folder
+   ii. Generates nuclei centers in a box and shape aspect ratios in
+       the 3 orthogonal directions (x,y,z) using recursiveSampler and
+       ellipticalFoam
+       (edit bimodal.pl or bell_curve.pl prior to running the 
+        generate-3d.sh script)
+   iii. Grows a microstructure using a Cellular Automaton method. Asks
+        about periodicity and box dimensions.
+   iv.  Calculates Ellipsoid statistics (semi-axes, orientation) and 
+        neighborhood for each unique grain
+   v.   Generates an averaged MDF and ODF from the supplied files located
+        in directory ANG_FILE_STORAGE
+   vi.  Performs simulated annealing to fit the experimental ODF and MDF
+        to the theoretical ODF and MDF using a stochastic approach.
+   vii. Generates a texture file with crystallographic orientations
+        phi1,PHI,phi2 corresponding to a unique grain ID.
+   viii.  Analyzes new digital microstructure and outputs an MDF
+          (frequency vs. theta) and a weights file for POPLA.
+
+The end result is a discrete microstructure and a texture file, which
+closely reproduces the experimentally observed geometric and orientation
+characteristics of the physical material.
+
+The files will be placed in a new folder with the current date and is 
+located under OUTPUT_FILES/ .  A brief list of the important files:
+
+   a. EAorts.txt --> orientation and corresponding spin ID
+   b. ellipsoid.yourCA.ph --> discrete 3D microstructure
+   c. texin1 --> weighted orientation file for rex3d package
+   d. rodf.txt --> annealed ODF in homochoric space 
+   e. evodf.txt --> experimental ODF in homochoric space based on ANG files
+   f. rmdf.txt --> annealed MDF in homochoric space
+   g. evmdf.txt --> experimental MDF in homochoric space based on ANG files
+   h. cellIdealization.xml --> geometric statistics for each grain
+   i. orts.txt --> grain orientations in Rodrigues space
+   j. orts.wts --> grain orientations weighted by volume
+   k. ellipsoid.cells --> ellipsoid cell centers and growth rates along x,y,z
+   l. active.list --> ellipsoid nuclei (Active) and cell centers (inactive)
+   
+
+DIGITAL MICROSTRUCTURE VISUALIZATION
+--------------------------------------------------
+
+Our computational group focuses on visualization of our data structures
+using the open-source software package, PARAVIEW.  www.paraview.org
+The software is free for download and is stable on all platforms including
+Windows, Linux, and Mac.
+
+A Fortran source code, MCconvert2Paraview.f, has been included in this
+package to easier convert the 3D discrete microstructure into a format
+suitable for visualization using Paraview.
+
+When compiling the package, an executable mc2pv should be created.
+
+To convert the ellipsoid.yourCA.ph photo file to a Paraview format, simply
+type:
+     ./mc2pv ellipsoid.yourCA.ph 
+
+The end result is a (.raw) format which can be directly opened in Paraview.
+For instructions on using Paraview, please refer to the PDF's located
+under the DOCS/ directory.
+
+
+REX3D USERS
+-------------------------
+
+The Potts-based Monte Carlo package, rex3d, can use the files as input into the model.
+
+1. Copy ellipsoid.yourCA.ph into a file called micro.input
+2. Copy the newly created micro.input and texin1 file to the directory where the 
+   executable, rex3d, resides.
+3. Don't forget to define the Q and Q2 values in common.h
+
+*** Remember, you must use the correct version of init.f to read the micro.input
+*** and if anistropic grain boundary properties are turned on, you must use
+*** prep_EandM.f
+
+
+
