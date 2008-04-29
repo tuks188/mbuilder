@@ -43,10 +43,16 @@ else
     g++ -o MC2vti MC2vti.cpp
 fi
 
-echo Building 3d_enum
-cd $dir/3d_enumerate
-make
-cp 3d_enum $dir/
+if [ -x 3d_enum ] ; then
+    echo 3d_enum up to date
+elif [ -e 3d_enumerate  ] ; then
+    echo Building 3d_enum
+    cd $dir/3d_enumerate
+    make
+    cp 3d_enum $dir/
+else 
+    echo No 3d_enum available
+fi
 
 cd $dir
 
