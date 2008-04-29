@@ -1,0 +1,10 @@
+As a branch of the Microstructure Builder software package, CA Builder
+essentially utilizes Cellular Automaton to grow nuclei with specific
+aspect ratios in place of synopsis. CA can easily generate elongated
+microstructures typically seen in uniaxially deformed metals.
+ 
+Additional codes have been implemented to generate specific
+file formats which can be directly read into the ADD_TEXTURE software.
+The end result is a discrete microstructure and corresponding texture that
+statistically resembles the experimentally observed microstructure
+characteristics.

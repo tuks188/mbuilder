@@ -1,0 +1,69 @@
+7/20/07 Chris Roberts
+	* Created stat3d_v2.f90 to generate the XML file
+          for large structures where the dimensions are >= 500^3 
+	* Generated XML_texture_check.f to calculate MDF and ODF
+	  of large datasets (>=500^3)
+
+6/11/07 Chris Roberts
+	* added spin_renumberMC.f to move spins from 0 to Q-1 to
+	  1 to Q. Updates EAorts.txt also.
+
+6/7/07  Chris Roberts
+	* Added wts2ang.f90 to convert WTS file to an ANG file
+          format used by TSL software.
+ 	* corrected a bug in the MC_mdf_check.f. did not account
+          for grain ID=0
+
+4/19/07 Chris Roberts
+	* Updated stat3d.f to correct issues with time values < 10	
+
+4/17/07 Chris Roberts
+	* Updated generate-3d.sh
+	* Modified annealfinal.c to exit loop when error drops
+	  below a minimum threshold (MINERROR) to reduce computational
+	  time.
+
+4/15/07 Chris Roberts
+	* corrected stat3d.f -- subroutine neighs() was assigning
+	  values outside of box
+        * added to the cell_auto package on SVN
+        * updated generate-3d.sh to run recursivesampler and ellipticalFoam
+          to generate the nuclei and aspect ratios for CA code.
+        * modified myCA_v10.f to read elliptical.cells and active.list
+          to generate the correct microstructure
+
+3/5/07  Chris Roberts
+	* edited generate-3d.sh to pre-determine ave grain volume
+	* updated README
+	* fixed myCA.f to read ellipsoid.info
+
+2/27/07 Chris Roberts
+	* added bell_curve.pl which creates a standard log-normal
+          grain size distribution
+
+2/19/07 Chris Roberts
+       	* fixed RodToE_wts.c and rod2eul.f to properly weight each
+          discrete orientation.
+
+2/8/07  Chris Roberts
+ 	* fixed rod2eul.f to correctly weight the discrete orientations
+
+2/1/07  Chris Roberts
+  	* added code to convert the photo file to a Paraview format
+        * added a code to calculate the digital microstructure's
+          MDF and ODF
+        * updated generate-3d.sh
+
+1/12/07 Chris Roberts
+        * added Sintay's texlist.c program to replace the annealfinal.c
+        * modified mdfextract and odfextract to read all ANG files
+        * modified generate-3d.sh to create new directory for each
+          structure generated in the OUTPUT_FILES/ directory 
+
+1/5/07	Chris Roberts
+	* replaced ellipticalfoam.c, synopsis, makeperiodic, findpoints
+          with a CA code to generate a microstructure on a rectilinear grid
+	* wrote Makefile to compile all C,C++, and F source
+	* wrote shell script to reduce user intervention during 
+          microstructure generation
+

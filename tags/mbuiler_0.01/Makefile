@@ -1,0 +1,127 @@
+#
+# Makefile for CA Builder
+#
+#
+# MACROS
+SHELL = /bin/bash
+
+.SUFFIXES : 
+.SUFFIXES : .f .c .cxx .h .f90
+
+SRCC =	annealfinal.c RodToE.c RodToE_wts.c mt19937-64.c ellipticalFoam.c
+
+SRCF = myCA.f rod2eul.f MC_mdf_check.f MCconvert2paraview.f XML_texture_check.f microFormat.f
+
+SRCF90 = wts2ang.f90 stat3d.f90 stat3d_v2.f90 spin_renumberMC.f90
+
+SRCCXX = odfextract_final.cxx mdfextract_final.cxx
+
+SRC = ${SRCC} ${SRCF} ${SRCCXX} ${SRCF90}
+
+OBJ =   $(SRCF:.f=.o) ${SRCF90:.f90=.o} $(SRCC:.c=.o) $(SRCCXX:.cxx=.o)
+
+EXTRAS =  OUTPUT_FILES ORIG_SRC ANG_FILE_STORAGE \
+          AUTHORS COPYING ChangeLog README Makefile mat.symm.cubic symop.txt \
+          mt64.h generate-3d.sh NEWS DOCS bimodal.pl bell_curve.pl \
+          recursiveSampler.pl gen3d_mod.sh
+
+## SYSTEM PARAMETERS
+PACKAGE = 'CABUILDER'
+VERSION = '0.4'
+
+FC = g95
+CC = gcc
+CXX = g++
+FFLAGS = -g -O2
+CFLAGS = -O2
+CXXFLAGS = -O2 -g
+LIBS = -L/usr/lib -lm 
+FLIBS = -L/usr/lib -llapack -lg2c -L/usr/lib/gcc/i386-redhat-linux/3.4.3/
+#FLIBS = -L/usr/lib -llapack -lg2c -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/
+## needed by stat3d.f to calculate eigenpairs
+
+
+all: annealfinal RodToE RodToE_wts myCA mdfextract_final \
+     odfextract_final stat3d rod2eul MC_mdf_check mc2pv ellipticalFoam \
+     wts2ang stat3d2 xml_texture renumber microFormat
+
+RodToE_wts: RodToE_wts.c
+	${CC} ${CFLAGS} -o $@ RodToE_wts.c ${LIBS}
+
+RodToE: RodToE.c
+	${CC} ${CFLAGS} -o $@ RodToE.c ${LIBS}
+
+rod2eul: rod2eul.f
+	${FC} ${FFLAGS} -o $@ rod2eul.f 
+
+ellipticalFoam : ellipticalFoam.c
+	${CC} ${CFLAGS} -o $@ ellipticalFoam.c ${LIBS}
+
+annealfinal : annealfinal.c
+	${CC} ${CFLAGS} -o $@ annealfinal.c ${LIBS}
+
+myCA.o: myCA.f
+	${FC} ${FFLAGS} -c -o $@ myCA.f
+
+MC_mdf_check: MC_mdf_check.f
+	${FC} ${FFLAGS} -o $@ MC_mdf_check.f
+
+mc2pv: MCconvert2paraview.f
+	${FC} ${FFLAGS} -o $@ MCconvert2paraview.f
+
+microFormat: microFormat.f
+	${FC} ${FFLAGS} -o $@ microFormat.f
+
+mt19937-64.o: mt19937-64.c mt64.h
+	${CC} ${CFLAGS} -c -o $@ mt19937-64.c
+
+myCA:   myCA.o mt19937-64.o 
+	${FC} ${FFLAGS} -o $@ myCA.o mt19937-64.o 
+
+stat3d: stat3d.f90
+	${FC} ${FFLAGS} -o $@ stat3d.f90 ${FLIBS}
+
+stat3d2: stat3d_v2.f90
+	${FC} ${FFLAGS} -o $@ stat3d_v2.f90 ${FLIBS}
+
+mdfextract_final: mdfextract_final.cxx
+	${CXX} ${CXXFLAGS} -o $@ mdfextract_final.cxx ${LIBS}
+
+odfextract_final: odfextract_final.cxx
+	${CXX} ${CXXFLAGS} -o $@ odfextract_final.cxx ${LIBS}
+
+wts2ang: wts2ang.f90
+	${FC} ${FFLAGS} -o $@ wts2ang.f90
+
+xml_texture: XML_texture_check.f
+	${FC} ${FFLAGS} -o $@ XML_texture_check.f 
+
+renumber: spin_renumberMC.f90
+	${FC} ${FFLAGS} -o $@ spin_renumberMC.f90 
+
+
+## Directory Maintenance
+
+clean: 
+	rm annealfinal RodToE RodToE_wts rod2eul myCA mdfextract_final \
+                 odfextract_final stat3d  MC_mdf_check  mc2pv *.mod *.o \
+                 ellipticalFoam wts2ang stat3d2 xml_texture renumber \
+		 microFormat
+
+tarball:
+	tar -czvf ${PACKAGE}_${VERSION}.tgz ${SRC} ${EXTRAS}
+        
+## SUFFIX RULES (Not necessary for this version)
+.f90.o : 
+	${FC} -c $<
+
+.f.o : 
+	${FC} -c $<
+
+.c.o :
+	${CC} -c $< 
+
+.cxx.o :
+	${CXX} -c $<
+
+
