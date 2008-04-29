@@ -132,7 +132,7 @@ double triangle::circularity(double area) const
   double c = distance(*p[2],*p[0]);
   double s = 0.5*(a+b+c);
   double r = area/s;
-  double R = a*b*b/4/area;
+  double R = a*b*c/4/area;
   return R/r;
 }
 
@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
   //Allocate contants for solving linear equations
   const double epsilon = 1.0; // change this if quality force too
 							  // high, low
-  const double dt = (4.0e-6)*(10/max[1]); // time step, change if
+  const double dt = (40.0e-6)*(10/max[1]); // time step, change if
 										   // mesh moves too much,
 										   // little
   const double small = 1.0e-12;

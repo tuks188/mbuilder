@@ -8,10 +8,12 @@
 ####################################################################
 
 dir=${PWD}
+bin_dir=`dirname $0`
 
 ########################################################
 ## Compile and Install                                ##
 ########################################################
+cd $bin_dir
 echo Building MC
 make -f Makefile.MC MC
 
@@ -23,9 +25,9 @@ else
 fi
 
 echo Building 3d_enum
-cd $dir/3d_enumerate
+cd $bin_dir/3d_enumerate
 make
-cp 3d_enum $dir/
+cp 3d_enum $bin_dir/
 
 cd $dir
 
@@ -39,12 +41,14 @@ if [[ $# -lt 2 ]] ; then
     echo or     ./grow-3d.sh Inputfile number_of_iterations Periodic
     exit 1
 elif [[ $# -eq 3 ]]; then
+    bin_dir=`dirname $0`
     input_dir=`dirname $1`
     input_file=$1
     iterations=$2
     Periodic=$3
 fi
 echo
+echo BIN_DIR "      "$bin_dir
 echo INPUT_DIR "    "$input_dir
 echo INPUT_FILE "   "$input_file
 echo ITERATIONS "   "$iterations
@@ -88,7 +92,7 @@ if [ ! -d $grow_dir ]; then
     exit 
 fi
 
-$dir/MC $input_file $grow_dir/ellipsoid_$grow_keyword.mc $iterations $Periodic
+$bin_dir/MC $input_file $grow_dir/ellipsoid_$grow_keyword.mc $iterations $Periodic
 mv mc_rewrite.ph $grow_dir/ellipsoid_$grow_keyword.ph
 
 cd $grow_dir
@@ -101,7 +105,7 @@ if [[ "$vti" > /dev/null ]] ; then
     Vti=$vti
 fi
 if [[ "$Vti" -eq 1 ]] ; then
-    $dir/MC2vti ellipsoid_$grow_keyword.mc
+    $bin_dir/MC2vti ellipsoid_$grow_keyword.mc
 fi
 
 
@@ -115,8 +119,8 @@ if [[ "$stats" > /dev/null ]] ; then
 fi
 
 if [[ "$Stats" -eq 1 ]] ; then
-    $dir/stat3d ellipsoid_BaseMC.ph $Periodic
-    $dir/awk_stats.sh
-    $dir/3d_enum    
+    $bin_dir/stat3d ellipsoid_BaseMC.ph $Periodic
+    $bin_dir/awk_stats.sh
+    $bin_dir/3d_enum    
 fi
 

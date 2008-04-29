@@ -614,7 +614,7 @@ c$$$	   write(*,*)'You have chosen dimensions',xmax,ymax,zmax
 	   dummy2 = 1.0D0* ymax/rve_y
 	   dummy3 = 1.0D0*zmax/rve_z
 
-	   write(*,*)dummy1 ,dummy2, dummy3
+!	   write(*,*)dummy1 ,dummy2, dummy3
 	   
 !	   write(*,'(a)')'Scaling does not match between' 
 !	   write(*,*)'RVE box and VOXEL domain'
