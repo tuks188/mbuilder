@@ -282,7 +282,7 @@ int main(int argc, char* argv[])
 		  nodes[i][j] -= small;
 		  //		  if( (Q_ave < 3.0) && (Q_max_ave < 10) ){
 		  A_scale = 4000.0;
-		  Q_scale = 100.0;
+		  Q_scale = 1000.0;
 		  // } else {
 // 			A_scale = 1000;
 // 			Q_scale = 500;
