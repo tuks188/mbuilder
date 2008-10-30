@@ -2359,7 +2359,6 @@ int main(int argc, char *argv[]) {
     else {
       abort = 1;
     }
-    fclose(infile);
   }
   else {
     abort = 1;

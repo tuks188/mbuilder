@@ -6,11 +6,18 @@
 #  approximately that observed experimentally for single phase polycrystals
 #  ADR, Dec 06
 
+# Updated to read command line size if provided
+# if no commandline argument is given then scale = 1;
+my $scale = shift;
+$scale>0 or $scale=1;
+
 my $spread = 0.4 ;
 
 my $offset = -0.11 ;
 
-my $size = 0.10 ; 
+# The size of the grain in the Z direction divided by the total size
+# of the RVE in the z direction
+my $size = 10.0/$scale ; 
 #  adjust this parameter to get different sizes of ellipsoids
 #  0.1  gave ~8500 ellipsoids  and 151 active cells
 #  0.05  gave 71000 ellipsoids and 898 active cells

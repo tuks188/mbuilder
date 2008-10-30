@@ -135,6 +135,8 @@ if [ "$Vz" -gt "$Vmax" ]; then
 Vmax=$Vz
 fi
 
+Rmax=`echo $Vmax $eta|awk '{print $1*$2}'`
+
 Ux=`echo $Vx $Vmax|awk '{print $1/$2}'`
 Uy=`echo $Vy $Vmax|awk '{print $1/$2}'`
 Uz=`echo $Vz $Vmax|awk '{print $1/$2}'`
@@ -239,10 +241,8 @@ fi
 echo 
 
 ## Print the results of Structure definition to model file
-echo a  $a >> $modelfile
-echo Va  $Va >> $modelfile
-echo eta  $eta >> $modelfile
-echo RVE $Vx $Vy $Vz >> $modelfile
+echo Scale\(microns/voxel\)  $eta >> $modelfile
+echo Voxels $Vx $Vy $Vz >> $modelfile
 echo Periodic $Periodic >> $modelfile
 echo Fraction $fraction >> $modelfile
 echo Ellipsoids $distfile >> $modelfile
@@ -261,7 +261,7 @@ fi
 if [ "$solution" -eq "3" ] ; then
     perl recursiveSampler.pl -bbox 0 $Ux 0 $Uy 0 $Uz -fraction $fraction 'perl bimodal.pl' > $tmpdir/test.input
 elif [ "$solution" -eq "2" ] ; then
-    perl recursiveSampler.pl -bbox 0 $Ux 0 $Uy 0 $Uz -fraction $fraction 'perl bell_curve.pl' > $tmpdir/test.input
+    perl recursiveSampler.pl -bbox 0 $Ux 0 $Uy 0 $Uz -fraction $fraction "perl bell_curve.pl $Rmax" > $tmpdir/test.input
 elif [ "$solution" -eq "1" ] ; then
     perl recursiveSampler.pl -bbox 0 $Rx 0 $Ry 0 $Rz -fraction $fraction -list $ListFileName > $tmpdir/test.input
 fi 
