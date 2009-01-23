@@ -32,15 +32,13 @@ echo \# >> $modelfile
 ########################################################
 echo Building CA executables
 os=`uname -a | grep Darwin`
-echo MAC os found $os
 
 if [ "$os" > /dev/null ] ; then
+    echo MAC os found $os
     make -f Makefile.Darwin
 else
     make
 fi
-
-exit
 
 echo Building MC
 make -f Makefile.MC MC
