@@ -43,25 +43,25 @@ while ($center = <stdin>) {
 #
 # Small ~20 grain model
 #
-sub smallAxes {
-  return(0.300+rand()*0.050,0.300+rand()*0.050,0.300+rand()*0.050);
-}
-
-sub bigAxes {
-  return(0.30+rand()*0.05,0.30+rand()*0.05,0.30+rand()*0.05);
-}
+#sub smallAxes {
+#  return(0.300+rand()*0.050,0.300+rand()*0.050,0.300+rand()*0.050);
+#}
+#
+#sub bigAxes {
+#  return(0.30+rand()*0.05,0.30+rand()*0.05,0.30+rand()*0.05);
+#}
 
 #
 # Medium-small ~150 grain model
 #
-#sub smallAxes {
-#  return(0.100+rand()*0.010,0.100+rand()*0.010,0.100+rand()*0.010);
-#}
-#
-#sub bigAxes {
-#  return(0.10+rand()*0.01,0.10+rand()*0.01,0.10+rand()*0.01);
-#}
-#
+sub smallAxes {
+  return(0.100+rand()*0.010,0.100+rand()*0.010,0.100+rand()*0.010);
+}
+
+sub bigAxes {
+  return(0.10+rand()*0.01,0.10+rand()*0.01,0.10+rand()*0.01);
+}
+
 
 #
 # Medium  grain model
