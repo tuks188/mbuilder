@@ -37,7 +37,7 @@ if [ "$os" > /dev/null ] ; then
     echo MAC os found $os
     make -f Makefile.Darwin
 else
-    make
+    make -f Makefile.gfortran
 fi
 
 echo Building MC
