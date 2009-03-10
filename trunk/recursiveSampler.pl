@@ -41,7 +41,7 @@ END_OF_USAGE
 
 $fraction = 1.05;
 $bbox = [0,1,0,1,0,1];
-$GLOBAL_MAX = 1000000;
+$GLOBAL_MAX = 2000;
 $listFile = "ellipsoids.txt";
 $listbool = 0;
 $scale=1;
@@ -172,7 +172,7 @@ sub sample {
 #    }
 #  }
   @parts = sort(@parts);
-  $midAxis = $parts[1];
+  $midAxis = $parts[2];
 
   if ($maxDim > $fraction*$midAxis) {
     my $midx = ($bbox->[0] + $bbox->[1])/2.0;
@@ -189,9 +189,9 @@ sub sample {
     &sample([$midx,$bbox->[1],$midy,$bbox->[3],$midz,$bbox->[5]],$fraction,$rdfh,$wrfh);
   }
 
-  #if ( $globalCount > $GLOBAL_MAX ){
-  #exit(1);
-  #}
+#   if ( $globalCount > $GLOBAL_MAX ){
+#   exit(1);
+#   }
 }
 
 
