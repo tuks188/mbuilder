@@ -11,9 +11,11 @@
 my $scale = shift;
 $scale>0 or $scale=1;
 
-my $spread = 0.4 ;
-
-my $offset = -0.11 ;
+# Lognormal parameters
+my $Xspread = 0.6 ;
+my $Xoffset = -0.11 ;
+my $Yspread = 0.75;
+my $Yoffset = -0.11;
 
 # The size of the grain in the Z direction divided by the total size
 # of the RVE in the z direction
@@ -23,7 +25,7 @@ my $size = 10.0/$scale ;
 #  0.05  gave 71000 ellipsoids and 898 active cells
 
 
-my $aspect = $size * 0.1 ;
+my $aspect = $size * 5 ;
 #  adjust this parameter to vary the range of aspect ratios
 
 $| = 1;
@@ -44,7 +46,7 @@ while ($center = <stdin>) {
 #######################################################################
 # Z or ND 
   $test = gaussdev($i) ;
-  $t3 = $size * exp(($test * $spread) + $offset) ;
+  $t3 = $size * exp(($test * $Xspread) + $Xoffset) ;
 
 #  limit the range over which the other 2 semi-axes vary
 # X or RD
@@ -53,7 +55,7 @@ while ($center = <stdin>) {
 
 # Y or TD
   $test = gaussdev($i) ;
-  $t2 = 4.0 * $t3 * exp(($test * $aspect)) ;
+  $t2 = 4.0 * $size * exp(($test * $Yspread) + $Yoffset) ;
 
 
 #######################################################################

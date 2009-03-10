@@ -1,10 +1,14 @@
 #!/bin/bash
 
-# AUTHOR: Chris Roberts 4/07
 ####################################################################
 ## OVERVIEW  ##
-# Script will facilitate the generation of a digital microstructure
-# and texture based on experimental data.
+# Script will facilitate the generation of a digital
+# microstructure. There are several core sections.
+# 1) Setup the environment 
+# 2) Compile codes
+# 3) Structure definition
+# 4) Structure generation
+# 5) Post processing
 ####################################################################
 
 ########################################################
@@ -13,6 +17,7 @@
 dir=${PWD}
 bin=$dir/bin
 src=$dir/src
+includes=$dir/includes
 tmp_keyword='tmpoutput_'`date '+%s'` # Date in seconds
 mkdir /tmp/$tmp_keyword
 tmpdir=/tmp/$tmp_keyword
@@ -68,6 +73,24 @@ if [ ! -f bimodal.pl -a bell_curve.pl -a recursiveSampler.pl ]; then
   exit 1
 fi
 
+if [ ! -d $includes/voxelconvert ]; then
+    echo voxelconvert not installed in $includes
+    echo downloading voxelconvert
+    cd $includes
+    pwd
+    svn co https://latir.materials.cmu.edu/svn/voxelconvert voxelconvert
+fi
+
+cd $includes/voxelconvert
+make
+
+cd $dir
+
+
+#######################################################################
+## Structure Definition                                              ##
+#######################################################################
+
 ###########################################################
 ## Read and process commandline arguments                ##
 ###########################################################
@@ -89,29 +112,19 @@ fi
 # echo ITERATIONS "   "$iterations
 # echo PERIODIC "     "$Periodic
 
-#######################################################################
-## Structure Definition                                              ##
-#######################################################################
+###########################################################
+## Interactive                                           ##
+###########################################################
+
 echo
 echo
-echo "======Structure Definition============================="
-
-## Define smallest feature and voxels to represent that feature
-a=5             # Length of smallest feature (microns)
-Va=10           # Number of voxels to represent smallest feature
-echo What is the approximate diameter of the smallest grain [$a microns]?
-read aa
-if [ "$aa" > /dev/null ] ; then
-a=$aa
+echo "======Structure definition============================="
+Eta=1
+echo What is the scale of the model \(microns/voxel\)? [$Eta]
+read eta
+if [ "$eta" > /dev/null ] ; then
+    Eta=$eta
 fi
-
-echo What number of voxels to represent this feature [$Va]?
-read va
-if [ "$va" > /dev/null ] ; then
-Va=$va
-fi
-eta=`echo $a $Va|awk '{print $1/$2}'` # microns/voxel
-echo RVE scale \(microns/voxel\): $eta
 ## Define dimension of the RVE in voxels
 Vx=100
 Vy=100
@@ -196,7 +209,7 @@ if [ "$frac" > /dev/null ] ; then
 fraction=$frac
 fi
 
-## Read ellipsoid distribution file and exectue recussiveSampler.pl
+## Read ellipsoid distribution information and exectue recussiveSampler.pl
 distfile="List"
 ListFileName="ellipsoids.txt"
 elscript="randomEntry.pl $ListFileName $Rx $Ry $Rz"
@@ -232,7 +245,8 @@ fi
 
 ## Print the results of Structure Definition screen
 echo
-echo ==============================
+echo
+echo "======Structure Summary============================="
 echo Feature size: $a microns
 echo Voxels for feature: $Va
 echo RVE scale \(microns/voxel\): $eta
@@ -248,7 +262,7 @@ fi
 echo 
 
 ## Print the results of Structure definition to model file
-echo Scale\(microns/voxel\)  $eta >> $modelfile
+echo Scale\(microns/voxel\)  $Eta >> $modelfile
 echo Voxels $Vx $Vy $Vz >> $modelfile
 echo Periodic $Periodic >> $modelfile
 echo Fraction $fraction >> $modelfile
@@ -263,8 +277,16 @@ fi
 ## Structure Generation                                              ##
 #######################################################################
 
-## executing recusiveSampler.pl to polulate unit RVE
-## executing recusiveSampler.pl to polulate unit RVE
+echo
+echo
+echo "======Structure generation============================="
+
+
+###########################################################
+## Execute recursiveSampler.pl to pack RVE               ##
+###########################################################
+echo =======executing recursiveSampler.pl with $distfile
+
 if [ "$solution" -eq "3" ] ; then
     perl recursiveSampler.pl -bbox 0 $Ux 0 $Uy 0 $Uz -fraction $fraction 'perl bimodal.pl' > $tmpdir/test.input
 elif [ "$solution" -eq "2" ] ; then
@@ -272,15 +294,13 @@ elif [ "$solution" -eq "2" ] ; then
 elif [ "$solution" -eq "1" ] ; then
     perl recursiveSampler.pl -bbox 0 $Rx 0 $Ry 0 $Rz -fraction $fraction -list $ListFileName > $tmpdir/test.input
 fi 
-# exit
 
-#######################################################################
-## ellipticalFoam
-#
-# Will choose a set of ellipsoids in the RVE to fill space and minimize
-# overlap. 
-#######################################################################
-echo executing ellipticalFoam
+###########################################################
+## Execute ellipticalFoam to choose a set of axtive      ##
+## ellipsoids in the RVE to fill space and minimize      ##
+## overlap.                                              ##
+###########################################################
+echo =======executing ellipticalFoam
 
 if [ -f cell.ctrl ] ; then rm cell.ctrl ; fi
 cd $tmpdir
@@ -291,84 +311,60 @@ rm paddedPoints pointKey metaData annealing.log
 ###########################################################
 ## Grow ellipsoids using Cellular Automaton              ##                 
 ###########################################################
-##  Define CA dimensions                                   
-# fNx=$(echo "scale=0; 100 * $Rx" | bc)
-# fNy=$(echo "scale=0; 100 * $Ry" | bc)
-# fNz=$(echo "scale=0; 100 * $Rz" | bc)
-# Nx=${fNx/.*} 
-# Ny=${fNy/.*} 
-# Nz=${fNz/.*} 
-
-echo Using CA to generate a voxellated microstructure
-# echo What box dimensions would you like to geneate? [$Nx $Ny $Nz]
-# read nx ny nz
-
-
-# if [ "$nx" > /dev/null ] ; then
-# Nx=$nx
-# fi
-
-# if [ "$ny" > /dev/null ] ; then
-# Ny=$ny
-# fi
-
-# if [ "$nz" > /dev/null ] ; then
-# Nz=$nz
-# fi
-
-# echo voxel X = $x
-# echo voxel Y = $Ny
-# echo voxel Z = $Nz
-# echo voxel_X $Nx >> $modelfile
-# echo voxel_Y $Ny >> $modelfile
-# echo voxel_Z $Nz >> $modelfile
-
-## Execute CA code
-# $Nx $Ny $Nz
+echo =======executing CA
 if [ "$solution" -eq "3" ] ; then
     $dir/myCA  $Ux $Uy $Uz $Vx $Vy $Vz $Periodic
 elif [ "$solution" -eq "2" ] ; then
     $dir/myCA  $Ux $Uy $Uz $Vx $Vy $Vz $Periodic
 elif [ "$solution" -eq "1" ] ; then
     $dir/myCA  $Rx $Ry $Rz $Vx $Vy $Vz $Periodic
-#perl recursiveSampler.pl -bbox 0 $Rx 0 $Ry 0 $Rz -fraction $fraction -list $ListFileName > $tmpdir/test.input
 fi 
 
-#$dir/myCA  $Rx $Ry $Rz $Vx $Vy $Vz $Periodic
-$dir/MC ellipsoid_BaseCA.ph ellipsoid_BaseMC.mc 0 $Periodic
 
-## Visualization
-Vti=1
-echo Generate VTI file? yes=1 no=2 [$Vti]
-read vti
-if [[ "$vti" > /dev/null ]] ; then
-    Vti=$vti
+
+#######################################################################
+## Post processing                                                   ##
+#######################################################################
+echo
+echo
+echo "======Post processing============================="
+
+###########################################################
+## Renumber as unique grains and set grain size threshold
+###########################################################
+$dir/includes/voxelconvert/voxelconvert ellipsoid_BaseCA.ph ellipsoid_BaseCA.mc
+
+Threshold=0
+echo How many voxels for the smallest grain? [$Threshold]
+read threshold
+if [[ "threshold" > /dev/null ]] ; then
+    Threshold=$threshold
 fi
 
-if [[ "$Vti" -eq 1 ]] ; then
-    $dir/MC2vti ellipsoid_BaseMC.mc
-fi
+$dir/includes/voxelconvert/ug2 ellipsoid_BaseCA.mc grains.mc $Threshold $Periodic
+rm ellipsoid_BaseCA.mc
+rm ellispoid_BaseCA.ph
 
-## Stats
-Stats=1
-echo Run statistics analysis? yes=1 no=2 [$Stats]
-read stats
+###########################################################
+## Output XML format for texturelist                     ##
+###########################################################
+$dir/includes/voxelconvert/voxel2XML grains.mc
 
-if [[ "$stats" > /dev/null ]] ; then
-    Stats=$stats
-fi
+###########################################################
+## Visualization                                         ##
+###########################################################
+$dir/MC2vti grains.mc
 
-if [[ "$Stats" -eq 1 ]] ; then
-    $dir/stat3d ellipsoid_BaseMC.ph $Periodic
-    $dir/awk_stats.sh
-    $dir/3d_enum    
-fi
-
+###########################################################
+## Stats                                                 ##
+###########################################################
+$dir/awk_stats.sh
 
 ###########################################################
 ## Grow grains to provide realism to structure           ##
 ###########################################################
 iterations=0
+echo
 echo How many steps of MC grain growth? [$iterations]
 read iters
 
@@ -405,8 +401,8 @@ if [[ $iterations -gt 0 ]]; then
 	echo ERROR: growth directory not created 
 	exit 
     fi
-    $dir/MC ellipsoid_BaseMC.ph $grow_dir/ellipsoid_$grow_keyword.mc $iterations $Periodic
-    mv $tmpdir/ellipsoid_BaseMC.ph $grow_dir/ellipsoid_$grow_keyword.ph
+    $dir/MC ellipsoid_BaseMC.ph $grow_dir/grains_$grow_keyword.mc $iterations $Periodic
+    mv $tmpdir/ellipsoid_BaseMC.ph $grow_dir/grains_$grow_keyword.ph
 
     cd $grow_dir
 
@@ -456,8 +452,6 @@ do
    #echo satisfied for count=$count
    keyword2=${keyword}_v${count}
  else
-   echo new directory will be named ${keyword2} and will be located
-   echo in the $dir/OUTPUT_FILES directory.
    break  
  fi
  let "count+=1"
@@ -469,8 +463,7 @@ mv $tmpdir $outputdir
 
 
 echo Program Finished
-echo All files were moved to $outputdir
-
 echo Program started at $time1
 echo Program ended at `date`
+echo results are located in $dir/OUTPUT_FILES/${keyword2}
 exit

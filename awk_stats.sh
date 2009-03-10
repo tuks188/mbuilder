@@ -15,11 +15,11 @@ print "ID \t Vol/<Vol> \t Neigh/<Neigh> \t Rad/<Rad> \t Vol \t Neigh \t Rad"
     print ids[x] "\t" \
           vols[x]/vol_sum "\t" \
           neighs[x]/neigh_sum "\t" \
-          rads[x]/rad_sum \
+          rads[x]/rad_sum "\t" \
           vols[x] "\t" \
           neighs[x] "\t" \
-          rads[x] "\t" \
-}' cellIdealization.xml > grain_stats.txt
+          rads[x]  \
+}' grains.xml > grain_stats.txt
 
 
 

@@ -43,7 +43,7 @@ void MCgrid3D::update(int steps)
 	MCgrid3D& grid = *this;
 	int n = nx[0]*nx[1]*nx[2];
 	//const float kT = 1.5;
-	const float kT =1.5;
+	const float kT =0.25;
 	int bridge_count=0;
 
 	for (int step=0; step<steps; step++) {

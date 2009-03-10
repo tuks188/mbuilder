@@ -53,7 +53,7 @@
 
 
 !Does structure have periodic boundary conditions
-      logical,parameter::periodic=.true.
+      logical,parameter::periodic=.false.
 
       integer,parameter::nset=200
 ! NEIGHBOR STORAGE ARRAYS
