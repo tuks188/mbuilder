@@ -19,7 +19,7 @@ print "ID \t Vol/<Vol> \t Neigh/<Neigh> \t Rad/<Rad> \t Vol \t Neigh \t Rad"
           vols[x] "\t" \
           neighs[x] "\t" \
           rads[x]  \
-}' grains.xml > grain_stats.txt
+}' $1 > grain_stats.txt
 
 
 

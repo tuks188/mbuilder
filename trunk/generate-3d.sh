@@ -335,9 +335,9 @@ echo "======Post processing============================="
 $dir/includes/voxelconvert/voxelconvert ellipsoid_BaseCA.ph ellipsoid_BaseCA.mc
 
 Threshold=0
-echo How many voxels for the smallest grain? [$Threshold]
+echo What is the threshold for grain size? \(voxels\) [$Threshold]
 read threshold
-if [[ "threshold" > /dev/null ]] ; then
+if [ "$threshold" > /dev/null ] ; then
     Threshold=$threshold
 fi
 
@@ -358,7 +358,7 @@ $dir/MC2vti grains.mc
 ###########################################################
 ## Stats                                                 ##
 ###########################################################
-$dir/awk_stats.sh
+$dir/awk_stats.sh grains.xml
 
 ###########################################################
 ## Grow grains to provide realism to structure           ##
@@ -401,37 +401,34 @@ if [[ $iterations -gt 0 ]]; then
 	echo ERROR: growth directory not created 
 	exit 
     fi
-    $dir/MC ellipsoid_BaseMC.ph $grow_dir/grains_$grow_keyword.mc $iterations $Periodic
-    mv $tmpdir/ellipsoid_BaseMC.ph $grow_dir/grains_$grow_keyword.ph
+    $dir/MC grains.mc $grow_dir/grainsMC.mc $iterations $Periodic
 
     cd $grow_dir
 
-    ## Visualization
-    Vti=1
-    echo Generate VTI file? yes=1 no=2 [$Vti]
-    read vti
-    if [[ "$vti" > /dev/null ]] ; then
-	Vti=$vti
+    Threshold=0
+    echo What is the threshold for grain size? \(voxels\) [$Threshold]
+    read threshold
+    if [ "$threshold" > /dev/null ] ; then
+	Threshold=$threshold
     fi
-    if [[ "$Vti" -eq 1 ]] ; then
-	$dir/MC2vti ellipsoid_$grow_keyword.mc
-    fi
+    
+    $dir/includes/voxelconvert/ug2 grainsMC.mc grains_$grow_keyword.mc $Threshold $Periodic
+    rm grainsMC.mc
 
+    ###########################################################
+    ## Output XML format for texturelist                     ##
+    ###########################################################
+    $dir/includes/voxelconvert/voxel2XML grains_$grow_keyword.mc
 
-    ## Stats
-    Stats=1
-    echo Run statistics analysis? yes=1 no=2 [$Stats]
-    read stats
+    ###########################################################
+    ## Visualization                                         ##
+    ###########################################################
+    $dir/MC2vti grains_$grow_keyword.mc
 
-    if [[ "$stats" > /dev/null ]] ; then
-	Stats=$stats
-    fi
-
-    if [[ "$Stats" -eq 1 ]] ; then
-	$dir/stat3d ellipsoid_$grow_keyword.ph $Periodic
-	$dir/awk_stats.sh
-	$dir/3d_enum    
-    fi
+    ###########################################################
+    ## Stats                                                 ##
+    ###########################################################
+    $dir/awk_stats.sh grains_$grow_keyword.xml
 fi
 
 ##############################################################
