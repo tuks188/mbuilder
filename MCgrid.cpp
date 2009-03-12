@@ -565,9 +565,9 @@ int main(int argc, char* argv[])
 	grid.output(argv[2]);
 
 	// Output the final structure as ascii in several formats
-	WritePHFile(outfile, grid);
-	WriteImplicitFile(outfile, grid);
-	WriteDXFile(outfile, grid);
+	//WritePHFile(outfile, grid);
+	//WriteImplicitFile(outfile, grid);
+	//WriteDXFile(outfile, grid);
 
 	
   } else if(extension == "ph" || extension == "PH"){
@@ -601,9 +601,9 @@ int main(int argc, char* argv[])
 	grid.output(argv[2]);
   
 	// Output the final structure as ascii in several formats
-	WritePHFile(outfile, grid);
-	WriteImplicitFile(outfile, grid);
-	WriteDXFile(outfile, grid);
+	//WritePHFile(outfile, grid);
+	//WriteImplicitFile(outfile, grid);
+	//WriteDXFile(outfile, grid);
   }
 
 
