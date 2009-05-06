@@ -51,12 +51,11 @@ while ($center = <stdin>) {
 #  limit the range over which the other 2 semi-axes vary
 # X or RD
   $test = gaussdev($i) ;
-  $t1 = 12.0 * $t3 * exp(($test * $aspect)) ;
+  $t1 = 1.0 * $t3 * exp(($test * $aspect)) ;
 
 # Y or TD
   $test = gaussdev($i) ;
   $t2 = 4.0 * $size * exp(($test * $Yspread) + $Yoffset) ;
-
 
 #######################################################################
 #  Output the values to the screen
