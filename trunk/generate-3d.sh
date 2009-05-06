@@ -341,9 +341,9 @@ if [ "$threshold" > /dev/null ] ; then
     Threshold=$threshold
 fi
 
-$dir/includes/voxelconvert/ug2 ellipsoid_BaseCA.mc grains.mc $Threshold $Periodic
+$dir/includes/voxelconvert/ug3D ellipsoid_BaseCA.mc grains.mc $Threshold $Periodic
 rm ellipsoid_BaseCA.mc
-rm ellispoid_BaseCA.ph
+rm ellipsoid_BaseCA.ph
 
 ###########################################################
 ## Output XML format for texturelist                     ##
@@ -412,7 +412,7 @@ if [[ $iterations -gt 0 ]]; then
 	Threshold=$threshold
     fi
     
-    $dir/includes/voxelconvert/ug2 grainsMC.mc grains_$grow_keyword.mc $Threshold $Periodic
+    $dir/includes/voxelconvert/ug3D grainsMC.mc grains_$grow_keyword.mc $Threshold $Periodic
     rm grainsMC.mc
 
     ###########################################################
